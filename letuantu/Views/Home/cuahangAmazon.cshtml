@@ -1,0 +1,628 @@
+﻿@{
+    Layout = null;
+}
+
+<<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amazon.com Shopping Cart</title>
+    <!-- Nhúng Font Awesome 5 từ CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Amazon Ember", Arial, sans-serif;
+        }
+        body {
+            background-color: #eaeded;
+            color: #0f1111;
+            font-size: 13px;
+        }
+
+        /* Top Navbar */
+        .navbar {
+            background-color: #131921;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            justify-content: space-between;
+        }
+        .navbar .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff9900;
+            letter-spacing: -1px;
+            cursor: pointer;
+        }
+        .navbar .search-bar {
+            display: flex;
+            flex-grow: 1;
+            margin: 0 15px;
+            max-width: 800px;
+        }
+        .navbar .search-bar input {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+            font-size: 14px;
+        }
+        .navbar .search-bar button {
+            background-color: #febd69;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .navbar .search-bar button:hover {
+            background-color: #f3a847;
+        }
+        .navbar .cart-icon {
+            position: relative;
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar .cart-count {
+            position: absolute;
+            top: -5px;
+            right: 10px;
+            color: #f08804;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Main Container Layout */
+        .container {
+            max-width: 1480px;
+            margin: 15px auto;
+            padding: 0 15px;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+        }
+
+        /* Cột bên trái */
+        .left-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Cột bên phải (Sidebar dài) */
+        .right-column {
+            width: 300px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* White Cards */
+        .card {
+            background-color: white;
+            padding: 18px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Main Shopping Cart Header */
+        .cart-header h1 {
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .cart-header a {
+            color: #007185;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .price-header {
+            text-align: right;
+            color: #565959;
+            font-size: 12px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 5px;
+        }
+
+        /* Cart Item Styling */
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid #e7e7e7;
+            padding: 15px 0;
+        }
+        .cart-item-checkbox {
+            margin-top: 5px;
+        }
+        .cart-item img {
+            width: 130px;
+            height: 130px;
+            object-fit: contain;
+        }
+        .item-details {
+            flex-grow: 1;
+        }
+        .item-details h3 {
+            font-size: 15px;
+            color: #007185;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+        .stock {
+            color: #007600;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .shipping-info {
+            color: #565959;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+        .gift-opt {
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        /* Action Row (Quantity + Links) */
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+        .qty-control {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #d5d9d9;
+            border-radius: 20px;
+            background-color: #f0f2f2;
+            box-shadow: 0 2px 5px rgba(15,17,17,.15);
+            padding: 2px 8px;
+        }
+        .qty-control select {
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        .item-actions a {
+            color: #007185;
+            text-decoration: none;
+        }
+        .item-actions a:hover {
+            text-decoration: underline;
+            color: #c45500;
+        }
+
+        .item-price-tag {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Subtotal bottom row */
+        .cart-subtotal-text {
+            text-align: right;
+            font-size: 16px;
+            padding-top: 12px;
+        }
+
+        /* Your Items Section */
+        .your-items-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .your-items-tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .your-items-tabs .tab {
+            padding-bottom: 8px;
+            cursor: pointer;
+            color: #565959;
+        }
+        .your-items-tabs .tab.active {
+            color: #007185;
+            border-bottom: 2px solid #e77600;
+            font-weight: bold;
+        }
+
+        /* Your Items List */
+        .your-item-card {
+            display: flex;
+            gap: 15px;
+            border: 1px solid #e7e7e7;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .your-item-card img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        .your-item-info {
+            flex-grow: 1;
+        }
+        .your-item-info h4 {
+            color: #007185;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .your-item-info .price {
+            color: #b12704;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .btn-add-cart {
+            background-color: #ffd814;
+            border: 1px solid #fcd200;
+            padding: 4px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 11px;
+            box-shadow: 0 2px 5px rgba(213,217,217,.5);
+        }
+        .btn-add-cart:hover {
+            background-color: #f7ca00;
+        }
+
+        /* Sidebar Styling */
+        .checkout-box h3 {
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+        .btn-proceed {
+            width: 100%;
+            background-color: #ffd814;
+            border: 1px solid #fcd200;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            box-shadow: 0 2px 5px rgba(213,217,217,.5);
+        }
+        .btn-proceed:hover {
+            background-color: #f7ca00;
+        }
+
+        /* Prime Box */
+        .prime-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+        }
+        .btn-prime {
+            background: #fff;
+            border: 1px solid #d5d9d9;
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        /* Popular add-ons Section */
+        .addons-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+        .addon-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 12px;
+        }
+        .addon-item:last-child {
+            border-bottom: none;
+        }
+        .addon-item img {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+        }
+        .addon-info {
+            font-size: 11px;
+        }
+        .addon-info a {
+            color: #007185;
+            text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .addon-info .stars {
+            color: #ffa41c;
+            font-size: 10px;
+            margin: 2px 0;
+        }
+        .addon-info .addon-price {
+            color: #b12704;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <div class="logo">amazon</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search Amazon" />
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <a href="#" class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="nav-cart-count" class="cart-count">3</span>
+        </a>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Cột bên trái: Shopping Cart + Your Items -->
+        <div class="left-column">
+            
+            <!-- Khối 1: SHOPPING CART -->
+            <div class="card">
+                <div class="cart-header">
+                    <h1>Shopping Cart</h1>
+                    <a href="#">Deselect all items</a>
+                </div>
+                <div class="price-header">Price</div>
+
+                <!-- Product 1 -->
+                <div class="cart-item" data-price="44.79">
+                    <input type="checkbox" checked class="cart-item-checkbox" />
+                    <img src="https://m.media-amazon.com/images/I/71OZllnwAfL._AC_SY695_.jpg" alt="Bag" />
+                    <div class="item-details">
+                        <h3>Giày tập thể thao</h3>
+                        <div class="stock">In Stock</div>
+                        <div class="shipping-info">FREE International Returns</div>
+                        <div class="gift-opt"><input type="checkbox" checked /> This is a gift <a href="#">Learn more</a></div>
+
+                        <div class="item-actions">
+                     
+                            
+                                
+                                <div class="qty-pill">
+                                    <button type="button" class="btn-minus">-</button>
+                                    <span class="qty-val">1</span>
+                                    <button type="button" class="btn-plus">+</button>
+                                </div>
+                            
+                            | <a href="#" class="delete-btn">Delete</a>
+                            | <a href="#">Save for later</a>
+                            | <a href="#">Compare with similar items</a>
+                            | <a href="#">Share</a>
+                        </div>
+                    </div>
+                    <div class="item-price-tag">1,428,260VND</div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="cart-item" data-price="98.00">
+                    <input type="checkbox" checked class="cart-item-checkbox" />
+                    <img src="https://m.media-amazon.com/images/I/71vN1wh17jL._AC_SX679_.jpg" alt="Shoes" />
+                    <div class="item-details">
+                        <h3>Vợt cầu lông Yonex </h3>
+                        <div class="stock">In Stock</div>
+                        <div class="gift-opt"><input type="checkbox" /> This is a gift <a href="#">Learn more</a></div>
+                        <div style="font-size: 11px; color: #555;">Yonex Astrox 77 | Color: Cape Blue</div>
+
+                        <div class="item-actions">
+                            
+                               
+                                <div class="qty-pill">
+                                    <button type="button" class="btn-minus">-</button>
+                                    <span class="qty-val">2</span>
+                                    <button type="button" class="btn-plus">+</button>
+                                </div>
+                            </div>
+                            | <a href="#" class="delete-btn">Delete</a>
+                            | <a href="#">Save for later</a>
+                            | <a href="#">Compare with similar items</a>
+                            | <a href="#">Share</a>
+                        
+                    </div>
+                    <div class="item-price-tag">7,500,000 VND</div>
+                </div>
+                <!-- Product 3 -->
+                <div class="cart-item" data-price="23.19">
+                    <input type="checkbox" checked class="cart-item-checkbox" />
+                    <img src="https://m.media-amazon.com/images/I/71J-bvGeeFL._AC_SX569_.jpg" alt="Top" />
+                    <div class="item-details">
+                        <h3>Newchoice Dressy Casual Tops for Women, Collared V Neck 3/4 Sleeve Blouses Loose Fitting Tunic Tops</h3>
+                        <div class="stock">In Stock</div>
+                        <div class="gift-opt"><input type="checkbox" /> This is a gift <a href="#">Learn more</a></div>
+                        <div style="font-size: 11px; color: #555;">Size: X-Large | Color: Sage Green</div>
+
+                        <div class="item-actions">
+                            
+                            <div class="qty-control">
+                                
+                                <div class="qty-pill">
+                                    <button type="button" class="btn-minus">-</button>
+                                    <span class="qty-val">3</span>
+                                    <button type="button" class="btn-plus">+</button>
+                                </div>
+                            </div>
+                            | <a href="#" class="delete-btn">Delete</a>
+                            | <a href="#">Save for later</a>
+                            | <a href="#">Compare with similar items</a>
+                            | <a href="#">Share</a>
+                        </div>
+                    </div>
+                    <div class="item-price-tag">
+                        <span style="color: #c40000; font-size: 35px;">-10%</span> 1,211,000VND
+                    </div>
+                </div>
+                <!-- Subtotal Bottom -->
+                <div class="cart-subtotal-text">
+                    Subtotal (<span id="subtotal-count">6</span> items): <strong id="subtotal-price" style="color: #0f1111;">$310.96</strong>
+                </div>
+            </div>
+
+            <!-- Khối 2: YOUR ITEMS (Dài giống ảnh 2) -->
+            <div class="card">
+                <div class="your-items-header">Your Items</div>
+                <div class="your-items-tabs">
+                    <div class="tab">No items saved for later</div>
+                    <div class="tab active">Buy it again</div>
+                </div>
+
+                
+                <div class="your-item-card">
+                    <img src="https://m.media-amazon.com/images/I/51CTuSv2EiL._AC_SY741_.jpg" alt="Sneakers" />
+                    <div class="your-item-info">
+                        <h4>Áo thể thao bó cầu lông nam</h4>
+                        <div class="price">1,500,00VND</div>
+                        <button class="btn-add-cart">Add to Cart</button>
+                    </div>
+                </div>
+
+                
+                <div class="your-item-card">
+                    <img src="https://m.media-amazon.com/images/I/71WXrpDnv6L._AC_SX679_.jpg" alt="Running Shoes" />
+                    <div class="your-item-info">
+                        <h4>Vợt cầu lông LI-NING Axforce 100</h4>
+                        <div class="price">8,981,00VND</div>
+                        <button class="btn-add-cart">Add to Cart</button>
+                    </div>
+                </div>
+
+                
+                <div class="your-item-card">
+                    <img src="https://m.media-amazon.com/images/I/712iKEOcP-L._AC_SY300_SX300_QL70_FMwebp_.jpg" alt="Hat" />
+                    <div class="your-item-info">
+                        <h4>Ống cầu Li-ning </h4>
+                        <div class="price">450,00VND</div>
+                        <button class="btn-add-cart">Add to Cart</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+       
+        <div class="right-column">
+            
+           
+            <div class="card checkout-box">
+                <h3>Subtotal (<span id="sidebar-subtotal-count">6</span> items): <strong id="sidebar-subtotal-price" style="color: #0f1111;">$310.96</strong></h3>
+                <div style="font-size: 11px; margin-bottom: 12px;">
+                    <input type="checkbox" checked /> This order contains a gift
+                </div>
+                <button class="btn-proceed">Proceed to checkout</button>
+            </div>
+
+            <!-- Box 2: Prime Trial -->
+            <div class="card prime-box">
+                <i class="fab fa-amazon-pay" style="font-size: 24px; color: #00a8e1;"></i>
+                <div>
+                    <strong>Get free and faster delivery with a 30-day FREE trial.</strong><br />
+                    <button class="btn-prime">Try Prime</button>
+                </div>
+            </div>
+
+            <!-- Box 3: Popular Add-ons (Danh sách dài kéo dọc) -->
+            <div class="card">
+                <div class="addons-title">Popular add-ons: Ships together with items in cart</div>
+
+                <!-- Addon 1 -->
+                <div class="addon-item">
+                    <img src="https://m.media-amazon.com/images/I/61jSmwW1QUL._AC_SX679_.jpg" alt="Addon" />
+                    <div class="addon-info">
+                        <a href="#">Móc KHóa Cầu Lông</a>
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i> 1,962</div>
+                        <div class="addon-price">70,00VND</div>
+                        <button class="btn-add-cart" style="margin-top: 4px;">Add to cart</button>
+                    </div>
+                </div>
+
+                <!-- Addon 2 -->
+                <div class="addon-item">
+                    <img src="https://m.media-amazon.com/images/I/81hXTrMTsvL._AC_SY550_.jpg" alt="Addon" />
+                    <div class="addon-info">
+                        <a href="#">Balo cầu lông</a>
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 14,116</div>
+                        <div class="addon-price">500,000VND</div>
+                        <button class="btn-add-cart" style="margin-top: 4px;">Add to cart</button>
+                    </div>
+                </div>
+
+                <!-- Addon 3 -->
+                <div class="addon-item">
+                    <img src="https://m.media-amazon.com/images/I/81jmxpIWzwL._AC_SY300_SX300_QL70_FMwebp_.jpg" alt="Addon" />
+                    <div class="addon-info">
+                        <a href="#">Túi đựng vợt YONEX</a>
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 534</div>
+                        <div class="addon-price">9,00,00VND</div>
+                        <button class="btn-add-cart" style="margin-top: 4px;">Add to cart</button>
+                    </div>
+                </div>
+
+                <!-- Addon 4 -->
+                <div class="addon-item">
+                    <img src="https://m.media-amazon.com/images/I/71i-2iftH-L._AC_SY300_SX300_QL70_FMwebp_.jpg" alt="Addon" />
+                    <div class="addon-info">
+                        <a href="#">Túi đựng vợt</a>
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 1,629</div>
+                        <div class="addon-price">2,546,00VND</div>
+                        <button class="btn-add-cart" style="margin-top: 4px;">Add to cart</button>
+                    </div>
+                </div>
+
+                <!-- Addon 5 -->
+                <div class="addon-item">
+                    <img src="https://m.media-amazon.com/images/I/51qUV2BsXiL._AC_SY300_SX300_QL70_FMwebp_.jpg" alt="Addon" />
+                    <div class="addon-info">
+                        <a href="#">Túi vợt màu hồng nam tính</a>
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 820</div>
+                        <div class="addon-price">700,00VND</div>
+                        <button class="btn-add-cart" style="margin-top: 4px;">Add to cart</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Nhúng file JV_.js để xử lý tính toán số lượng/giá tiền -->
+    <script src="~/Scripts/amazon/JV_.js"></script>
+</body>
+</html>
